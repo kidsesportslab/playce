@@ -1,0 +1,59 @@
+          <option value="gold">ゴールド</option>
+          <option value="plat">プラチナ</option>
+          <option value="diamond">ダイヤモンド</option>
+          <option value="ascendant">アセンダント</option>
+          <option value="immortal">イモータル</option>
+          <option value="radiant">レディアント</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>一言コメント</label>
+      <textarea id="inputComment" placeholder="例: VC必須。丁寧な方希望。" maxlength="200"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">キャンセル</button>
+      <button class="btn-primary" onclick="submitPost()">投稿する</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const SUPABASE_URL='https://qbbqppmcbdjdbkuwvnxq.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFiYnFwcG1jYmRqZGJrdXd2bnhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2MDI2NDIsImV4cCI6MjA5MjE3ODY0Mn0.DImqulcRIWqMeMABsCzlBCTK55SKwL3tabClY3V8ZVI';
+const supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const RANK_LABELS={any:'指定なし',bronze:'ブロンズ',silver:'シルバー',gold:'ゴールド',plat:'プラチナ',diamond:'ダイヤモンド',ascendant:'アセンダント',immortal:'イモータル',radiant:'レディアント'};
+let allPosts=[];
+async function loadPosts(){
+  const{data,error}=await supabase.from('recruiting_posts').select('*').order('created_at',{ascending:false});
+  if(error){document.getElementById('postList').innerHTML='<div class="loading">取得失敗: '+error.message+'</div>';return;}
+  allPosts=data||[];renderPosts(allPosts);
+  document.getElementById('postCount').textContent=allPosts.length+' 件募集中';
+  document.getElementById('onlineCount').textContent=allPosts.length+' 件募集中';
+}
+function renderPosts(posts){
+  const c=document.getElementById('postList');
+  if(!posts.length){c.innerHTML='<div class="empty"><div class="empty-icon">🎮</div><p>まだ募集がありません。<br>最初の募集を投稿してみよう！</p></div>';return;}
+  c.innerHTML=posts.map(p=>{const rank=p.rank||'any';return'<div class="card"><span class="card-rank '+rank+'">'+(RANK_LABELS[rank]||rank)+'</span><div class="card-name">'+escapeHtml(p.name)+'</div><div class="card-mode">🎯 '+escapeHtml(p.mode)+'</div>'+(p.comment?'<div class="card-comment">'+escapeHtml(p.comment)+'</div>':'')+'<div class="card-meta"><span>'+getTimeAgo(p.created_at)+'</span><span>🎮 VALORANT</span></div></div>';}).join('');
+}
+function filterPosts(mode,btn){document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderPosts(mode==='all'?allPosts:allPosts.filter(p=>p.mode===mode));}
+function openModal(){document.getElementById('modalOverlay').classList.add('active');}
+function closeModal(){document.getElementById('modalOverlay').classList.remove('active');document.getElementById('inputName').value='';document.getElementById('inputComment').value='';}
+async function submitPost(){
+  const name=document.getElementById('inputName').value.trim();
+  const mode=document.getElementById('inputMode').value;
+  const rank=document.getElementById('inputRank').value;
+  const comment=document.getElementById('inputComment').value.trim();
+  if(!name){showToast('ライアットIDを入力してください');return;}
+  const{error}=await supabase.from('recruiting_posts').insert([{name,mode,rank,comment}]);
+  if(error){showToast('投稿失敗: '+error.message);return;}
+  showToast('募集を投稿しました！');closeModal();loadPosts();
+}
+supabase.channel('recruiting_posts').on('postgres_changes',{event:'*',schema:'public',table:'recruiting_posts'},loadPosts).subscribe();
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+function escapeHtml(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
+function getTimeAgo(d){const m=Math.floor((Date.now()-new Date(d))/60000);if(m<1)return'たった今';if(m<60)return m+'分前';const h=Math.floor(m/60);if(h<24)return h+'時間前';return Math.floor(h/24)+'日前';}
+loadPosts();
+</script>
+</body>
+</html>
