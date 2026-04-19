@@ -1,59 +1,237 @@
-          <option value="gold">ゴールド</option>
-          <option value="plat">プラチナ</option>
-          <option value="diamond">ダイヤモンド</option>
-          <option value="ascendant">アセンダント</option>
-          <option value="immortal">イモータル</option>
-          <option value="radiant">レディアント</option>
-        </select>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>playce — VALORANT マルチ募集</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+:root{--red:#ff4655;--red-d:#c73444;--bg:#0d0d14;--bg2:#13131f;--bg3:#1a1a2e;--bdr:rgba(255,70,85,.2);--bdr2:rgba(255,255,255,.07);--txt:#eaeaf0;--mute:#7b7d96;--gold:#c9a227}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:rgba(255,70,85,.4);border-radius:3px}
+
+/* HEADER */
+header{position:sticky;top:0;z-index:100;background:rgba(13,13,20,.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--bdr);padding:0 32px;height:62px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1.8rem;letter-spacing:4px;text-transform:uppercase}
+.logo em{color:var(--red);font-style:normal}
+.logo-sub{font-size:.6rem;color:var(--mute);letter-spacing:3px;text-transform:uppercase;margin-top:-5px}
+.hdr-right{display:flex;align-items:center;gap:14px}
+.live{display:flex;align-items:center;gap:6px;background:rgba(76,175,80,.08);border:1px solid rgba(76,175,80,.25);padding:4px 12px;border-radius:20px;font-size:.7rem;color:#81c784;letter-spacing:.5px}
+.dot{width:6px;height:6px;border-radius:50%;background:#4caf50;animation:blink 1.6s infinite}
+@keyframes blink{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(76,175,80,.6)}60%{opacity:.5;box-shadow:0 0 0 5px rgba(76,175,80,0)}}
+.btn-new{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.8rem;letter-spacing:2px;text-transform:uppercase;background:var(--red);color:#fff;border:none;padding:8px 22px;clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%);cursor:pointer;transition:background .2s,transform .15s;white-space:nowrap}
+.btn-new:hover{background:var(--red-d);transform:scale(1.03)}
+
+/* HERO */
+.hero{position:relative;padding:72px 32px 56px;text-align:center;overflow:hidden}
+.hero::after{content:'';position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:700px;height:420px;background:radial-gradient(ellipse,rgba(255,70,85,.1) 0%,transparent 65%);pointer-events:none;z-index:-1}
+.eyebrow{font-family:'Rajdhani',sans-serif;font-size:.7rem;letter-spacing:5px;text-transform:uppercase;color:var(--red);margin-bottom:14px;display:flex;align-items:center;justify-content:center;gap:12px}
+.eyebrow::before,.eyebrow::after{content:'';flex:1;max-width:48px;height:1px;background:linear-gradient(90deg,transparent,var(--red))}
+.eyebrow::after{background:linear-gradient(90deg,var(--red),transparent)}
+h1{font-family:'Rajdhani',sans-serif;font-size:clamp(2rem,5.5vw,3.8rem);font-weight:700;line-height:1.05;letter-spacing:.5px;margin-bottom:14px}
+h1 em{display:block;font-style:normal;background:linear-gradient(120deg,var(--red) 0%,#ff8c94 40%,var(--gold) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-desc{color:var(--mute);font-size:.9rem;max-width:400px;margin:0 auto 32px;line-height:1.8}
+.hero-stats{display:flex;justify-content:center;gap:48px;margin-bottom:40px}
+.stat-n{font-family:'Rajdhani',sans-serif;font-size:1.9rem;font-weight:700;line-height:1;color:var(--txt)}
+.stat-l{font-size:.65rem;color:var(--mute);text-transform:uppercase;letter-spacing:1.5px;margin-top:3px}
+.divider{height:1px;background:linear-gradient(90deg,transparent,var(--bdr),transparent);max-width:560px;margin:0 auto}
+
+/* MAIN */
+.wrap{max-width:1080px;margin:0 auto;padding:36px 24px 80px}
+
+/* TOOLBAR */
+.toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:10px}
+.sec-title{font-family:'Rajdhani',sans-serif;font-size:.85rem;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--mute)}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-left:10px}
+.fb{font-family:'Rajdhani',sans-serif;font-size:.75rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;padding:5px 14px;border-radius:2px;border:1px solid var(--bdr2);background:transparent;color:var(--mute);cursor:pointer;transition:all .2s}
+.fb.on,.fb:hover{border-color:var(--red);color:var(--red);background:rgba(255,70,85,.05)}
+.cnt{font-family:'Rajdhani',sans-serif;font-size:.75rem;color:var(--mute);letter-spacing:1px}
+
+/* GRID */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(275px,1fr));gap:14px}
+
+/* CARD */
+.card{position:relative;background:var(--bg2);border:1px solid var(--bdr2);border-radius:4px;padding:18px 20px;transition:border-color .25s,transform .2s,box-shadow .25s;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--red),rgba(255,70,85,0));opacity:0;transition:opacity .25s}
+.card:hover{border-color:rgba(255,70,85,.35);transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.4)}
+.card:hover::before{opacity:1}
+.c-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px}
+.c-name{font-family:'Rajdhani',sans-serif;font-size:1.05rem;font-weight:700;color:var(--txt);word-break:break-all;line-height:1.2}
+.badge{flex-shrink:0;font-family:'Rajdhani',sans-serif;font-size:.62rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 9px;border-radius:2px}
+.b-any{background:rgba(108,99,255,.15);color:#a09bff;border:1px solid rgba(108,99,255,.25)}
+.b-bronze{background:rgba(123,94,59,.2);color:#c8956a;border:1px solid rgba(123,94,59,.35)}
+.b-silver{background:rgba(140,140,140,.15);color:#c0c0c0;border:1px solid rgba(140,140,140,.3)}
+.b-gold{background:rgba(201,162,39,.15);color:#e8c547;border:1px solid rgba(201,162,39,.3)}
+.b-plat{background:rgba(0,180,180,.12);color:#4dd4d4;border:1px solid rgba(0,180,180,.25)}
+.b-diamond{background:rgba(65,105,225,.15);color:#789bf5;border:1px solid rgba(65,105,225,.3)}
+.b-ascendant{background:rgba(60,179,113,.12);color:#5de5a0;border:1px solid rgba(60,179,113,.25)}
+.b-immortal{background:rgba(155,27,48,.2);color:#f07080;border:1px solid rgba(155,27,48,.35)}
+.b-radiant{background:rgba(255,215,0,.12);color:#ffd700;border:1px solid rgba(255,215,0,.25)}
+.c-mode{font-size:.75rem;color:var(--mute);margin-bottom:10px;display:flex;align-items:center;gap:5px}
+.c-mode-bar{width:3px;height:12px;background:var(--red);border-radius:1px;opacity:.6;flex-shrink:0}
+.c-comment{font-size:.8rem;color:#a2a4ba;line-height:1.65;padding:9px 11px;background:rgba(255,255,255,.025);border-left:2px solid rgba(255,70,85,.25);border-radius:0 3px 3px 0;word-break:break-word}
+.c-foot{display:flex;align-items:center;justify-content:space-between;margin-top:13px;padding-top:11px;border-top:1px solid var(--bdr2)}
+.c-time{font-size:.68rem;color:var(--mute)}
+.c-tag{font-family:'Rajdhani',sans-serif;font-size:.62rem;letter-spacing:2px;text-transform:uppercase;color:rgba(255,70,85,.4)}
+
+/* EMPTY/LOADING */
+.state{text-align:center;padding:72px 20px;color:var(--mute);grid-column:1/-1}
+.state-ico{font-size:2.8rem;margin-bottom:14px;opacity:.35}
+.state-t{font-family:'Rajdhani',sans-serif;font-size:1.15rem;letter-spacing:1.5px;color:rgba(234,234,240,.5);margin-bottom:7px}
+.state-s{font-size:.8rem;line-height:1.7}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);z-index:200;display:none;align-items:center;justify-content:center;padding:16px}
+.overlay.on{display:flex}
+.modal{background:var(--bg3);border:1px solid var(--bdr);border-radius:6px;width:100%;max-width:450px;overflow:hidden}
+.m-bar{height:3px;background:linear-gradient(90deg,var(--red),var(--gold))}
+.m-body{padding:26px 26px 20px}
+.m-title{font-family:'Rajdhani',sans-serif;font-size:1.15rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:22px}
+.m-title em{color:var(--red);font-style:normal}
+.field{margin-bottom:14px}
+.field label{display:block;font-family:'Rajdhani',sans-serif;font-size:.67rem;font-weight:600;letter-spacing:1.8px;text-transform:uppercase;color:var(--mute);margin-bottom:6px}
+.field input,.field select,.field textarea{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--bdr2);color:var(--txt);padding:9px 13px;border-radius:3px;font-size:.85rem;font-family:'Noto Sans JP',sans-serif;outline:none;transition:border-color .2s,background .2s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--red);background:rgba(255,70,85,.03)}
+.field select option{background:var(--bg3)}
+.field textarea{resize:vertical;min-height:76px;line-height:1.6}
+.row{display:flex;gap:10px}
+.row .field{flex:1}
+.m-foot{display:flex;gap:8px;justify-content:flex-end;padding:0 26px 22px}
+.btn-c{background:transparent;border:1px solid var(--bdr2);color:var(--mute);padding:8px 18px;border-radius:3px;cursor:pointer;font-size:.8rem;font-family:'Noto Sans JP',sans-serif;transition:all .2s}
+.btn-c:hover{border-color:var(--mute);color:var(--txt)}
+.btn-ok{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.82rem;letter-spacing:2px;text-transform:uppercase;background:var(--red);color:#fff;border:none;padding:8px 22px;clip-path:polygon(7px 0,100% 0,calc(100% - 7px) 100%,0 100%);cursor:pointer;transition:background .2s}
+.btn-ok:hover{background:var(--red-d)}
+
+/* TOAST */
+.toast{position:fixed;bottom:26px;right:26px;background:var(--bg3);border:1px solid var(--bdr);color:var(--txt);padding:13px 18px;border-radius:4px;font-size:.82rem;z-index:300;display:none;align-items:center;gap:9px;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+.toast.on{display:flex;animation:tIn .3s ease}
+@keyframes tIn{from{transform:translateY(10px);opacity:0}to{transform:none;opacity:1}}
+.t-dot{width:5px;height:5px;border-radius:50%;background:var(--red);flex-shrink:0}
+
+/* FAB (mobile) */
+@media(max-width:600px){
+  header{padding:0 16px}
+  .btn-new{display:none}
+  .hero{padding:44px 16px 36px}
+  .hero-stats{gap:28px}
+  .wrap{padding:24px 14px 72px}
+  .fab{position:fixed;bottom:22px;right:22px;width:50px;height:50px;border-radius:50%;background:var(--red);color:#fff;border:none;font-size:1.5rem;cursor:pointer;z-index:50;box-shadow:0 4px 20px rgba(255,70,85,.5);display:flex;align-items:center;justify-content:center}
+}
+@media(min-width:601px){.fab{display:none}}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <div class="logo">play<em>ce</em></div>
+    <div class="logo-sub">VALORANT Match Finder</div>
+  </div>
+  <div class="hdr-right">
+    <div class="live"><div class="dot"></div><span id="liveCnt">接続中...</span></div>
+    <button class="btn-new" onclick="openM()">+ 募集を投稿</button>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="eyebrow">VALORANT JP</div>
+  <h1>野良をなくす<em>仲間を見つけろ</em></h1>
+  <p class="hero-desc">ランク・モードを選んで最高のパーティを見つけよう。完全無料・登録不要。</p>
+  <div class="hero-stats">
+    <div><div class="stat-n" id="statN">0</div><div class="stat-l">募集中</div></div>
+    <div><div class="stat-n">24h</div><div class="stat-l">常時稼働</div></div>
+    <div><div class="stat-n">無料</div><div class="stat-l">完全無料</div></div>
+  </div>
+  <div class="divider"></div>
+</section>
+
+<div class="wrap">
+  <div class="toolbar">
+    <div style="display:flex;align-items:center">
+      <span class="sec-title">募集一覧</span>
+      <div class="filters">
+        <button class="fb on" onclick="filt('all',this)">ALL</button>
+        <button class="fb" onclick="filt('ランクマッチ',this)">RANK</button>
+        <button class="fb" onclick="filt('アンレート',this)">UNRATED</button>
+        <button class="fb" onclick="filt('スパイク争奪戦',this)">SPIKE</button>
+        <button class="fb" onclick="filt('カスタム',this)">CUSTOM</button>
       </div>
     </div>
-    <div class="form-group">
-      <label>一言コメント</label>
-      <textarea id="inputComment" placeholder="例: VC必須。丁寧な方希望。" maxlength="200"></textarea>
+    <span class="cnt" id="cntBadge"></span>
+  </div>
+  <div class="grid" id="grid">
+    <div class="state"><div class="state-ico">⚡</div><div class="state-t">LOADING...</div></div>
+  </div>
+</div>
+
+<button class="fab" onclick="openM()">＋</button>
+
+<div class="overlay" id="ov">
+  <div class="modal">
+    <div class="m-bar"></div>
+    <div class="m-body">
+      <div class="m-title"><em>//</em> 募集を投稿</div>
+      <div class="field"><label>ライアットID</label><input id="iN" type="text" placeholder="例: Neon#JP1" maxlength="50" autocomplete="off"></div>
+      <div class="row">
+        <div class="field"><label>モード</label><select id="iM"><option value="ランクマッチ">ランクマッチ</option><option value="アンレート">アンレート</option><option value="スパイク争奪戦">スパイク争奪戦</option><option value="カスタム">カスタム</option></select></div>
+        <div class="field"><label>ランク帯</label><select id="iR"><option value="any">指定なし</option><option value="bronze">ブロンズ</option><option value="silver">シルバー</option><option value="gold">ゴールド</option><option value="plat">プラチナ</option><option value="diamond">ダイヤモンド</option><option value="ascendant">アセンダント</option><option value="immortal">イモータル</option><option value="radiant">レディアント</option></select></div>
+      </div>
+      <div class="field"><label>一言コメント <span style="font-weight:400;font-size:.6rem;color:var(--mute)">(任意)</span></label><textarea id="iC" placeholder="例: VC必須。丁寧な方希望！" maxlength="200"></textarea></div>
     </div>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeModal()">キャンセル</button>
-      <button class="btn-primary" onclick="submitPost()">投稿する</button>
+    <div class="m-foot">
+      <button class="btn-c" onclick="closeM()">キャンセル</button>
+      <button class="btn-ok" onclick="sub()">投稿する</button>
     </div>
   </div>
 </div>
-<div class="toast" id="toast"></div>
+
+<div class="toast" id="toast"><div class="t-dot"></div><span id="tmsg"></span></div>
+
 <script>
-const SUPABASE_URL='https://qbbqppmcbdjdbkuwvnxq.supabase.co';
-const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFiYnFwcG1jYmRqZGJrdXd2bnhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2MDI2NDIsImV4cCI6MjA5MjE3ODY0Mn0.DImqulcRIWqMeMABsCzlBCTK55SKwL3tabClY3V8ZVI';
-const supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-const RANK_LABELS={any:'指定なし',bronze:'ブロンズ',silver:'シルバー',gold:'ゴールド',plat:'プラチナ',diamond:'ダイヤモンド',ascendant:'アセンダント',immortal:'イモータル',radiant:'レディアント'};
-let allPosts=[];
-async function loadPosts(){
-  const{data,error}=await supabase.from('recruiting_posts').select('*').order('created_at',{ascending:false});
-  if(error){document.getElementById('postList').innerHTML='<div class="loading">取得失敗: '+error.message+'</div>';return;}
-  allPosts=data||[];renderPosts(allPosts);
-  document.getElementById('postCount').textContent=allPosts.length+' 件募集中';
-  document.getElementById('onlineCount').textContent=allPosts.length+' 件募集中';
+const SB = window.supabase.createClient('https://qbbqppmcbdjdbkuwvnxq.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFiYnFwcG1jYmRqZGJrdXd2bnhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2MDI2NDIsImV4cCI6MjA5MjE3ODY0Mn0.DImqulcRIWqMeMABsCzlBCTK55SKwL3tabClY3V8ZVI');
+const RM = {any:'指定なし',bronze:'ブロンズ',silver:'シルバー',gold:'ゴールド',plat:'プラチナ',diamond:'ダイヤモンド',ascendant:'アセンダント',immortal:'イモータル',radiant:'レディアント'};
+const MI = {'ランクマッチ':'🏆','アンレート':'🎮','スパイク争奪戦':'💣','カスタム':'⚙️'};
+let all=[], f='all';
+
+async function load(){
+  const{data,error}=await SB.from('recruiting_posts').select('*').order('created_at',{ascending:false});
+  if(error){show([]);return;}
+  all=data||[];
+  document.getElementById('liveCnt').textContent=all.length+' 件募集中';
+  document.getElementById('statN').textContent=all.length;
+  show(f==='all'?all:all.filter(p=>p.mode===f));
 }
-function renderPosts(posts){
-  const c=document.getElementById('postList');
-  if(!posts.length){c.innerHTML='<div class="empty"><div class="empty-icon">🎮</div><p>まだ募集がありません。<br>最初の募集を投稿してみよう！</p></div>';return;}
-  c.innerHTML=posts.map(p=>{const rank=p.rank||'any';return'<div class="card"><span class="card-rank '+rank+'">'+(RANK_LABELS[rank]||rank)+'</span><div class="card-name">'+escapeHtml(p.name)+'</div><div class="card-mode">🎯 '+escapeHtml(p.mode)+'</div>'+(p.comment?'<div class="card-comment">'+escapeHtml(p.comment)+'</div>':'')+'<div class="card-meta"><span>'+getTimeAgo(p.created_at)+'</span><span>🎮 VALORANT</span></div></div>';}).join('');
+
+function show(posts){
+  const g=document.getElementById('grid');
+  document.getElementById('cntBadge').textContent=posts.length+' 件';
+  if(!posts.length){g.innerHTML='<div class="state"><div class="state-ico">🎯</div><div class="state-t">NO POSTS</div><div class="state-s">まだ募集がありません。<br>最初の一人になろう！</div></div>';return;}
+  g.innerHTML=posts.map(p=>{
+    const r=p.rank||'any';
+    return '<div class="card"><div class="c-top"><div class="c-name">'+x(p.name)+'</div><div class="badge b-'+r+'">'+(RM[r]||r)+'</div></div><div class="c-mode"><div class="c-mode-bar"></div>'+(MI[p.mode]||'🎮')+' '+x(p.mode)+'</div>'+(p.comment?'<div class="c-comment">'+x(p.comment)+'</div>':'')+'<div class="c-foot"><span class="c-time">'+t(p.created_at)+'</span><span class="c-tag">VALORANT</span></div></div>';
+  }).join('');
 }
-function filterPosts(mode,btn){document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderPosts(mode==='all'?allPosts:allPosts.filter(p=>p.mode===mode));}
-function openModal(){document.getElementById('modalOverlay').classList.add('active');}
-function closeModal(){document.getElementById('modalOverlay').classList.remove('active');document.getElementById('inputName').value='';document.getElementById('inputComment').value='';}
-async function submitPost(){
-  const name=document.getElementById('inputName').value.trim();
-  const mode=document.getElementById('inputMode').value;
-  const rank=document.getElementById('inputRank').value;
-  const comment=document.getElementById('inputComment').value.trim();
-  if(!name){showToast('ライアットIDを入力してください');return;}
-  const{error}=await supabase.from('recruiting_posts').insert([{name,mode,rank,comment}]);
-  if(error){showToast('投稿失敗: '+error.message);return;}
-  showToast('募集を投稿しました！');closeModal();loadPosts();
+
+function filt(mode,btn){f=mode;document.querySelectorAll('.fb').forEach(b=>b.classList.remove('on'));btn.classList.add('on');show(mode==='all'?all:all.filter(p=>p.mode===mode));}
+function openM(){document.getElementById('ov').classList.add('on')}
+function closeM(){document.getElementById('ov').classList.remove('on');document.getElementById('iN').value='';document.getElementById('iC').value='';}
+document.getElementById('ov').addEventListener('click',e=>{if(e.target.id==='ov')closeM();});
+
+async function sub(){
+  const name=document.getElementById('iN').value.trim();
+  if(!name){toast_('ライアットIDを入力してください');return;}
+  const{error}=await SB.from('recruiting_posts').insert([{name,mode:document.getElementById('iM').value,rank:document.getElementById('iR').value,comment:document.getElementById('iC').value.trim()}]);
+  if(error){toast_('エラー: '+error.message);return;}
+  toast_('投稿しました！');closeM();load();
 }
-supabase.channel('recruiting_posts').on('postgres_changes',{event:'*',schema:'public',table:'recruiting_posts'},loadPosts).subscribe();
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
-function escapeHtml(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
-function getTimeAgo(d){const m=Math.floor((Date.now()-new Date(d))/60000);if(m<1)return'たった今';if(m<60)return m+'分前';const h=Math.floor(m/60);if(h<24)return h+'時間前';return Math.floor(h/24)+'日前';}
-loadPosts();
+
+SB.channel('rc').on('postgres_changes',{event:'*',schema:'public',table:'recruiting_posts'},load).subscribe();
+
+function toast_(msg){const e=document.getElementById('toast');document.getElementById('tmsg').textContent=msg;e.classList.add('on');setTimeout(()=>e.classList.remove('on'),3000);}
+function x(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
+function t(d){const m=Math.floor((Date.now()-new Date(d))/60000);if(m<1)return'たった今';if(m<60)return m+'分前';const h=Math.floor(m/60);if(h<24)return h+'時間前';return Math.floor(h/24)+'日前';}
+load();
 </script>
 </body>
 </html>
