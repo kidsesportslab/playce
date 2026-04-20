@@ -202,19 +202,21 @@ function show(posts){
   const g=document.getElementById('grid');
   document.getElementById('cntBadge').textContent=posts.length+' 件';
   if(!posts.length){g.innerHTML='<div class="state"><div class="state-ico">🎯</div><div class="state-t">NO POSTS</div></div>';return;}
-  g.innerHTML=posts.map(p=>{
+  g.innerHTML=posts.map((p,i)=>{
     const r=p.rank||'any';
     const rc=rankClass(r);
     const rl=RM[r]||r;
-    const pj=JSON.stringify(p).replace(/\\/g,'\\\\').replace(/'/g,"’");
-    return '<div class="card"><div class="c-top"><div class="c-name">'+x(p.name)+'</div><span class="badge '+rc+'">'+rl+'</span></div><div class="c-mode">'+(MI[p.mode]||'🎮')+' '+x(p.mode)+'</div><div class="c-comment">'+(p.comment?x(p.comment):'')+'</div><div class="c-foot"><span class="c-time">'+t(p.created_at)+'</span><button class="join-btn" onclick='openJ('+pj+')'>'+'参加する ▶'+'</button></div></div>';
+    return '<div class="card"><div class="c-top"><div class="c-name">'+x(p.name)+'</div><span class="badge '+rc+'">'+rl+'</span></div><div class="c-mode">'+(MI[p.mode]||'🎮')+' '+x(p.mode)+'</div><div class="c-comment">'+(p.comment?x(p.comment):'')+'</div><div class="c-foot"><span class="c-time">'+t(p.created_at)+'</span><button class="join-btn" onclick="openJ('+i+')">参加する ▶</button></div></div>';
   }).join('');
 }
 function filt(mode,btn){f=mode;document.querySelectorAll('.fb').forEach(b=>b.classList.remove('on'));btn.classList.add('on');show(f==='all'?all:all.filter(p=>p.mode===f));}
 function openM(){document.getElementById('ov').classList.add('on');}
 function closeM(){document.getElementById('ov').classList.remove('on');document.getElementById('iN').value='';document.getElementById('iC').value='';}
 document.getElementById('ov').addEventListener('click',e=>{if(e.target.id==='ov')closeM();});
-function openJ(post){
+function openJ(i){
+  const displayed=f==='all'?all:all.filter(p=>p.mode===f);
+  const post=displayed[i];
+  if(!post)return;
   currentJoinPost=post;
   document.getElementById('jTargetName').textContent=post.name||'-';
   document.getElementById('jTargetDetail').textContent=(MI[post.mode]||'🎮')+' '+post.mode+' / '+(RM[post.rank]||post.rank||'指定なし');
