@@ -44,11 +44,11 @@ header{position:sticky;top:0;z-index:100;background:rgba(13,13,20,.95);backdrop-
 .stat-divider{width:1px;background:var(--bdr);align-self:stretch}
 
 /* MAIN */
-.main{max-width:1080px;margin:0 auto;padding:24px 20px}
+.main{max-width:1080px;margin:0 auto;padding:20px 20px}
 
 /* FILTER BAR */
-.filter-bar{background:var(--bg2);border:1px solid var(--bdr2);border-radius:10px;padding:14px 18px;margin-bottom:24px}
-.filter-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.filter-bar{background:rgba(19,19,31,.97);border:none;border-bottom:1px solid var(--bdr2);border-radius:0;padding:10px 20px;margin-bottom:0;position:sticky;top:57px;z-index:90;backdrop-filter:blur(12px)}
+.filter-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .filter-row+.filter-row{margin-top:10px;padding-top:10px;border-top:1px solid var(--bdr2)}
 .filter-label{font-size:.65rem;color:var(--mute);letter-spacing:1.5px;text-transform:uppercase;font-family:'Rajdhani',sans-serif;min-width:36px;flex-shrink:0}
 .filter-group{display:flex;flex-wrap:wrap;gap:5px}
@@ -197,7 +197,7 @@ select option{background:var(--bg3)}
     </div>
     <div class="hero-stats">
       <div class="stat">
-        <div class="stat-num" id="heroCount">0<span class="stat-unit">人</span></div>
+        <div class="stat-num" id="heroCount" style="display:flex;align-items:center;gap:8px"><span id="heroDot" style="width:10px;height:10px;background:var(--green);border-radius:50%;display:inline-block;flex-shrink:0;animation:pulse 2s infinite"></span><span id="heroNum">0</span><span class="stat-unit">人</span></div>
         <div class="stat-label">NOW ONLINE</div>
       </div>
       <div class="stat-divider"></div>
@@ -485,7 +485,7 @@ function renderCards() {
   // Update hero count
   const heroCount = document.getElementById('heroCount');
   if (heroCount) {
-    heroCount.innerHTML = allPosts.length + '<span class="stat-unit">人</span>';
+    const heroNum = document.getElementById('heroNum'); if(heroNum) heroNum.textContent = allPosts.length;
   }
   badge.textContent = filtered.length;
 
@@ -554,7 +554,36 @@ async function fetchPosts() {
   });
   renderCards();
 }
-fetchPosts();
+
+// デモ用モックデータ（DBが空のときのみ使用）
+const MOCK_POSTS = [
+  {id:'m1',name:'Lyriel',rank:'Diamond',comment:'ランク上げたい！デュアル歓迎。無言OK',mode:'{"vc":"あり","slots":2,"duration_min":90,"discord_id":"Lyriel#2847","vibe_tags":["怒らない","がち"],"style_tags":["ランク上げ","デュアル歓迎"]}',created_at:new Date(Date.now()-12*60000).toISOString()},
+  {id:'m2',name:'くまさん',rank:'Gold',comment:'楽しくやりたい！初心者も大歓迎',mode:'{"vc":"あり","slots":3,"duration_min":60,"discord_id":"くまさん#0721","vibe_tags":["怒らない","初心者歓迎","楽しくやりたい"],"style_tags":["エンジョイ"]}',created_at:new Date(Date.now()-25*60000).toISOString()},
+  {id:'m3',name:'ShadowAce',rank:'Platinum',comment:'スパイクはれる人募集中',mode:'{"vc":"なし","slots":1,"duration_min":45,"discord_id":"ShadowAce#5512","vibe_tags":["がち","絶対勝ちたい"],"style_tags":["スパイク希望","ランク上げ"]}',created_at:new Date(Date.now()-8*60000).toISOString()},
+  {id:'m4',name:'みどりん',rank:'Silver',comment:'おしゃべりしながらエンジョイしたい♡',mode:'{"vc":"あり","slots":2,"duration_min":120,"discord_id":"みどりん#3301","vibe_tags":["怒らない","ゆるく","楽しくやりたい"],"style_tags":["エンジョイ"]}',created_at:new Date(Date.now()-33*60000).toISOString()},
+  {id:'m5',name:'Nexus_JP',rank:'Immortal',comment:'コンペ ランク上げのみ。VC必須',mode:'{"vc":"あり","slots":1,"duration_min":60,"discord_id":"Nexus_JP#9981","vibe_tags":["がち","絶対勝ちたい","指示歓迎"],"style_tags":["ランク上げ","ロール就く"]}',created_at:new Date(Date.now()-5*60000).toISOString()},
+  {id:'m6',name:'haru_val',rank:'Bronze',comment:'最近始めたばかり。優しく教えてくれる方富てて…',mode:'{"vc":"聴き専門","slots":4,"duration_min":90,"discord_id":"haru_val#4420","vibe_tags":["初心者歓迎","怒らない","楽しくやりたい"],"style_tags":["エンジョイ"]}',created_at:new Date(Date.now()-18*60000).toISOString()},
+  {id:'m7',name:'TFalcon',rank:'Ascendant',comment:'コントローラーやる人いる？一緒に上を目指そう',mode:'{"vc":"あり","slots":2,"duration_min":120,"discord_id":"TFalcon#7723","vibe_tags":["がち","上手いと務まる"],"style_tags":["ランク上げ","コントローラー希望"]}',created_at:new Date(Date.now()-42*60000).toISOString()},
+  {id:'m8',name:'ゆずこ',rank:'Gold',comment:'夜間常連。無言でもOK。ロール就く',mode:'{"vc":"なし","slots":1,"duration_min":60,"discord_id":"ゆずこ#2255","vibe_tags":["ゆるく","怒らない"],"style_tags":["ロール就く","エンジョイ"]}',created_at:new Date(Date.now()-55*60000).toISOString()},
+  {id:'m9',name:'KiraStrike',rank:'Radiant',comment:'ラディアン動画中。コメ判断できる人',mode:'{"vc":"あり","slots":1,"duration_min":30,"discord_id":"KiraStrike#0001","vibe_tags":["がち","絶対勝ちたい"],"style_tags":["ランク上げ","スパイク希望"]}',created_at:new Date(Date.now()-3*60000).toISOString()},
+  {id:'m10',name:'りょうた',rank:'Platinum',comment:'社会人なので深夜帯多い。落ち着いて遊びたい',mode:'{"vc":"あり","slots":2,"duration_min":90,"discord_id":"りょうた#8844","vibe_tags":["怒らない","ゆるく","楽しくやりたい"],"style_tags":["エンジョイ","デュアル歓迎"]}',created_at:new Date(Date.now()-67*60000).toISOString()}
+];
+
+
+// フェッチ後、DBが空ならモックを使う
+async function fetchPostsWithFallback() {
+  await fetchPosts();
+  if (allPosts.length === 0) {
+    // DBが空のとき、モックデータをデモ表示
+    allPosts = MOCK_POSTS.filter(p => {
+      const m = parseMeta(p.mode);
+      return (new Date(p.created_at).getTime() + (m.duration_min||60)*60000) > Date.now();
+    });
+    renderCards();
+  }
+}
+
+fetchPostsWithFallback();
 setInterval(fetchPosts, 30000);
 // Refresh timer display every minute
 setInterval(() => { if (allPosts.length) renderCards(); }, 60000);
