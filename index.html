@@ -174,6 +174,12 @@ select option{background:var(--bg3)}
   .hero-stats{justify-content:center}
   .hero-left h1{font-size:1.8rem}
 }
+.badge-new{position:absolute;top:12px;right:12px;background:var(--green);color:#000;font-family:'Rajdhani',sans-serif;font-size:.62rem;font-weight:700;padding:2px 8px;border-radius:10px;letter-spacing:1px}
+.time-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:16px;font-size:.75rem;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:.5px;border:1px solid}
+.time-badge.fresh{background:rgba(0,217,126,.1);color:var(--green);border-color:rgba(0,217,126,.2)}
+.time-badge.normal{background:rgba(107,114,128,.08);color:var(--mute);border-color:rgba(107,114,128,.15)}
+.time-badge.urgent{background:rgba(245,158,11,.1);color:var(--yellow);border-color:rgba(245,158,11,.2)}
+.time-badge.critical{background:rgba(255,68,68,.1);color:#ff4444;border-color:rgba(255,68,68,.2);animation:blink 1s infinite}
 </style>
 </head>
 <body>
@@ -192,8 +198,8 @@ select option{background:var(--bg3)}
 <section class="hero">
   <div class="hero-inner">
     <div class="hero-left">
-      <h1>野良をなくす<br><em>仕間を見つけろ</em></h1>
-      <p>VALORANT JP · 完全無料・登録不要</p>
+      <h1>「変なやつ」じゃない<br><em>安心できる人を見つけろ</em></h1>
+      <p>VALORANT JP · ランク・雰囲気で絞れる · 登録不要</p>
     </div>
     <div class="hero-stats">
       <div class="stat">
@@ -414,13 +420,15 @@ function timeLeft(createdAt, durMin) {
   const created = new Date(createdAt);
   const expires = new Date(created.getTime() + (durMin||60) * 60000);
   const diff = expires - Date.now();
-  if (diff <= 0) return {label:'期限切れ', cls:'expired', expired:true};
+  if (diff <= 0) return {label:'期限切れ', cls:'expired', badge:'expired', expired:true};
   const m = Math.ceil(diff / 60000);
-  if (m <= 5)  return {label:'残り' + m + '分！', cls:'critical', expired:false};
-  if (m <= 15) return {label:'残り' + m + '分', cls:'urgent', expired:false};
-  if (m < 60)  return {label:'残り' + m + '分', cls:'', expired:false};
+  const sinceMin = Math.floor((Date.now() - created.getTime()) / 60000);
+  const isNew = sinceMin < 60;
+  if (m <= 5)  return {label:'残り' + m + '分！', cls:'critical', badge:'critical', expired:false, isNew};
+  if (m <= 15) return {label:'残り' + m + '分', cls:'urgent', badge:'urgent', expired:false, isNew};
+  if (m < 60)  return {label:'残り' + m + '分', cls:'', badge:'fresh', expired:false, isNew};
   const h = Math.floor(m/60), rm = m%60;
-  return {label:'残り' + h + '時間' + (rm ? rm+'分' : ''), cls:'', expired:false};
+  return {label:'残り' + h + '時間' + (rm ? rm+'分' : ''), cls:'', badge:'normal', expired:false, isNew};
 }
 
 // ---- FILTERS ----
@@ -521,6 +529,7 @@ function renderCards() {
 
     return '<div class="card" onclick="openJoin(' + idx + ')">' +
       '<div class="card-accent"></div>' +
+      (ti.isNew ? '<div class="badge-new">NEW</div>' : '') +
       '<div class="card-person">' +
         '<div class="card-avatar">' + esc(initial) + '</div>' +
         '<div class="card-person-info">' +
@@ -528,14 +537,14 @@ function renderCards() {
           '<span class="card-rank rank-' + rc + '">' + esc(p.rank) + '</span>' +
         '</div>' +
       '</div>' +
-      (p.comment ? '<div class="card-comment">“' + esc(p.comment) + '”</div>' : '') +
       ((vibeTags || styleTags) ? '<div class="vibe-tags">' + vibeTags + styleTags + '</div>' : '') +
+      (p.comment ? '<div class="card-comment">“' + esc(p.comment) + '”</div>' : '') +
       '<div class="card-meta">' +
         (vc ? '<span class="meta-item ' + (vcOn?'meta-vc-on':'meta-vc-off') + '">' + micIcon + esc(vc) + '</span>' : '') +
         (slotsLabel ? '<span class="meta-item" style="color:var(--mute)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>' + esc(slotsLabel) + '</span>' : '') +
       '</div>' +
       '<div class="card-footer">' +
-        '<span class="time-left ' + ti.cls + '">' + clockIcon + ti.label + '</span>' +
+        '<span class="time-badge ' + (ti.badge||ti.cls||'normal') + '">' + clockIcon + ti.label + '</span>' +
         '<button class="btn-join" onclick="event.stopPropagation();openJoin(' + idx + ')">一緒にプレイする</button>' +
       '</div>' +
     '</div>';
