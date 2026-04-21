@@ -1,485 +1,286 @@
 <!DOCTYPE html>
 <html lang="ja">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>playce 開発講義 — ぜんぶわかる！</title>
-  <style>
-      @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap');
-      *{margin:0;padding:0;box-sizing:border-box;}
-      body{font-family:'Noto Sans JP',sans-serif;background:#0f0f1a;color:#fff;overflow:hidden;}
-      .slides{width:100vw;height:100vh;position:relative;}
-      .slide{position:absolute;inset:0;display:none;flex-direction:column;justify-content:center;align-items:center;padding:48px;text-align:center;}
-      .slide.active{display:flex;}
-      /* カラーテーマ */
-      .slide-title{background:linear-gradient(135deg,#1a0533,#0d1f3c);}
-      .slide-blue{background:linear-gradient(135deg,#071428,#0a2040);}
-      .slide-purple{background:linear-gradient(135deg,#1a0533,#2a0a4a);}
-      .slide-green{background:linear-gradient(135deg,#041f0a,#0a3018);}
-      .slide-dark{background:#0f0f1a;}
-      /* ラベル */
-      .badge{display:inline-block;padding:4px 14px;border-radius:20px;font-size:13px;font-weight:700;margin-bottom:16px;letter-spacing:1px;}
-      .badge-blue{background:#1a4fff22;border:1px solid #1a4fff;color:#5b8bff;}
-      .badge-purple{background:#8b2be222;border:1px solid #8b2be2;color:#c97dff;}
-      .badge-green{background:#00c85322;border:1px solid #00c853;color:#4dffa0;}
-      .badge-red{background:#ff002222;border:1px solid #ff4444;color:#ff8080;}
-      /* 見出し */
-      h1{font-size:clamp(28px,5vw,64px);font-weight:900;line-height:1.15;margin-bottom:20px;}
-      h2{font-size:clamp(22px,3.5vw,44px);font-weight:900;line-height:1.2;margin-bottom:18px;}
-      h3{font-size:clamp(16px,2.5vw,28px);font-weight:700;margin-bottom:12px;}
-      .sub{font-size:clamp(13px,1.8vw,20px);color:#aaa;line-height:1.7;max-width:760px;}
-      .accent{color:#ff4655;}
-      .accent2{color:#5b8bff;}
-      .accent3{color:#4dffa0;}
-      /* カード */
-      .cards{display:flex;gap:20px;margin-top:28px;flex-wrap:wrap;justify-content:center;width:100%;}
-      .card{background:#ffffff0d;border:1px solid #ffffff18;border-radius:16px;padding:24px 20px;flex:1;min-width:180px;max-width:260px;}
-      .card-icon{font-size:36px;margin-bottom:10px;}
-      .card h3{font-size:17px;margin-bottom:6px;}
-      .card p{font-size:13px;color:#bbb;line-height:1.6;}
-      /* ステップ */
-      .steps{list-style:none;text-align:left;margin-top:24px;width:100%;max-width:700px;}
-      .steps li{display:flex;align-items:flex-start;gap:16px;margin-bottom:18px;background:#ffffff08;border-radius:12px;padding:16px 20px;}
-      .step-num{background:#ff4655;color:#fff;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;flex-shrink:0;}
-      .step-text strong{display:block;font-size:16px;margin-bottom:4px;}
-      .step-text span{font-size:13px;color:#bbb;line-height:1.6;}
-      /* コード風 */
-      .code-block{background:#0d0d1a;border:1px solid #ffffff18;border-radius:12px;padding:20px 24px;text-align:left;font-family:monospace;font-size:14px;line-height:1.9;margin-top:20px;width:100%;max-width:680px;}
-      .code-block .cm{color:#6a9955;}
-      .code-block .ck{color:#569cd6;}
-      .code-block .cv{color:#ce9178;}
-      .code-block .cn{color:#4ec9b0;}
-      /* 比較 */
-      .compare{display:flex;gap:20px;margin-top:24px;width:100%;max-width:800px;}
-      .compare-box{flex:1;border-radius:14px;padding:22px;text-align:left;}
-      .before{background:#ff000015;border:1px solid #ff444433;}
-      .after{background:#00ff0015;border:1px solid #44ff4433;}
-      .compare-box h3{font-size:15px;margin-bottom:10px;}
-      .compare-box ul{list-style:none;font-size:13px;color:#ccc;line-height:2;}
-      .compare-box ul li::before{margin-right:8px;}
-      .before ul li::before{content:"✗";color:#ff6666;}
-      .after ul li::before{content:"✓";color:#66ff88;}
-      /* ナビ */
-      .nav{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);display:flex;gap:12px;z-index:100;}
-      .nav button{background:#ffffff15;border:1px solid #ffffff30;color:#fff;padding:10px 28px;border-radius:30px;font-size:15px;cursor:pointer;transition:.2s;font-family:inherit;}
-      .nav button:hover{background:#ff465530;border-color:#ff4655;}
-      .progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#ff4655,#5b8bff);transition:width .3s;}
-      .page-num{position:fixed;bottom:28px;right:32px;font-size:13px;color:#666;}
-      /* アニメ */
-      .highlight-box{border:2px solid #ff4655;border-radius:12px;padding:20px 28px;margin-top:20px;max-width:680px;background:#ff465510;}
-      .big-num{font-size:80px;font-weight:900;line-height:1;margin-bottom:8px;}
-      .tag-demo{display:inline-block;padding:5px 14px;border-radius:20px;font-size:13px;font-weight:700;margin:4px;}
-      .flow{display:flex;align-items:center;gap:12px;margin-top:24px;flex-wrap:wrap;justify-content:center;}
-      .flow-box{background:#ffffff0d;border:1px solid #ffffff20;border-radius:10px;padding:14px 18px;font-size:14px;text-align:center;}
-      .arrow{font-size:22px;color:#666;}
-      .two-col{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:24px;width:100%;max-width:800px;text-align:left;}
-      .col-box{background:#ffffff08;border:1px solid #ffffff15;border-radius:14px;padding:22px;}
-      .col-box h3{font-size:16px;margin-bottom:10px;color:#5b8bff;}
-      .col-box p, .col-box ul{font-size:13px;color:#ccc;line-height:1.8;}
-      .col-box ul{list-style:none;padding:0;}
-      .col-box ul li::before{content:"→ ";color:#ff4655;}
-    </style>
-  </head>
-  <body>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>playce 開発講義 — ぜんぶわかる！</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Noto Sans JP',sans-serif;background:#0f0f1a;color:#fff;overflow:hidden;}
+.slides{width:100vw;height:100vh;position:relative;}
+.slide{position:absolute;inset:0;display:none;flex-direction:column;justify-content:center;align-items:center;padding:48px;text-align:center;}
+.slide.active{display:flex;}
+.slide-title{background:linear-gradient(135deg,#1a0533,#0d1f3c);}
+.slide-blue{background:linear-gradient(135deg,#071428,#0a2040);}
+.slide-purple{background:linear-gradient(135deg,#1a0533,#2a0a4a);}
+.slide-green{background:linear-gradient(135deg,#041f0a,#0a3018);}
+.slide-dark{background:#0f0f1a;}
+.badge{display:inline-block;padding:4px 14px;border-radius:20px;font-size:13px;font-weight:700;margin-bottom:16px;letter-spacing:1px;}
+.badge-blue{background:#1a4fff22;border:1px solid #1a4fff;color:#5b8bff;}
+.badge-purple{background:#8b2be222;border:1px solid #8b2be2;color:#c97dff;}
+.badge-green{background:#00c85322;border:1px solid #00c853;color:#4dffa0;}
+.badge-red{background:#ff002222;border:1px solid #ff4444;color:#ff8080;}
+h1{font-size:clamp(28px,5vw,64px);font-weight:900;line-height:1.15;margin-bottom:20px;}
+h2{font-size:clamp(22px,3.5vw,44px);font-weight:900;line-height:1.2;margin-bottom:18px;}
+h3{font-size:clamp(16px,2.5vw,28px);font-weight:700;margin-bottom:12px;}
+.sub{font-size:clamp(13px,1.8vw,20px);color:#aaa;line-height:1.7;max-width:760px;}
+.accent{color:#ff4655;}.accent2{color:#5b8bff;}.accent3{color:#4dffa0;}
+.cards{display:flex;gap:20px;margin-top:28px;flex-wrap:wrap;justify-content:center;width:100%;}
+.card{background:#ffffff0d;border:1px solid #ffffff18;border-radius:16px;padding:24px 20px;flex:1;min-width:180px;max-width:260px;}
+.card-icon{font-size:36px;margin-bottom:10px;}
+.card h3{font-size:17px;margin-bottom:6px;}
+.card p{font-size:13px;color:#bbb;line-height:1.6;}
+.steps{list-style:none;text-align:left;margin-top:24px;width:100%;max-width:700px;}
+.steps li{display:flex;align-items:flex-start;gap:16px;margin-bottom:18px;background:#ffffff08;border-radius:12px;padding:16px 20px;}
+.step-num{background:#ff4655;color:#fff;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;flex-shrink:0;}
+.step-text strong{display:block;font-size:16px;margin-bottom:4px;}
+.step-text span{font-size:13px;color:#bbb;line-height:1.6;}
+.code-block{background:#0d0d1a;border:1px solid #ffffff18;border-radius:12px;padding:20px 24px;text-align:left;font-family:monospace;font-size:14px;line-height:1.9;margin-top:20px;width:100%;max-width:680px;}
+.compare{display:flex;gap:20px;margin-top:24px;width:100%;max-width:800px;}
+.compare-box{flex:1;border-radius:14px;padding:22px;text-align:left;}
+.before{background:#ff000015;border:1px solid #ff444433;}
+.after{background:#00ff0015;border:1px solid #44ff4433;}
+.compare-box h3{font-size:15px;margin-bottom:10px;}
+.compare-box ul{list-style:none;font-size:13px;color:#ccc;line-height:2;}
+.compare-box ul li::before{margin-right:8px;}
+.before ul li::before{content:"x";color:#ff6666;}
+.after ul li::before{content:"v";color:#66ff88;}
+.nav{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);display:flex;gap:12px;z-index:100;}
+.nav button{background:#ffffff15;border:1px solid #ffffff30;color:#fff;padding:10px 28px;border-radius:30px;font-size:15px;cursor:pointer;transition:.2s;font-family:inherit;}
+.nav button:hover{background:#ff465530;border-color:#ff4655;}
+.progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#ff4655,#5b8bff);transition:width .3s;}
+.page-num{position:fixed;bottom:28px;right:32px;font-size:13px;color:#666;}
+.highlight-box{border:2px solid #ff4655;border-radius:12px;padding:20px 28px;margin-top:20px;max-width:680px;background:#ff465510;}
+.tag-demo{display:inline-block;padding:5px 14px;border-radius:20px;font-size:13px;font-weight:700;margin:4px;}
+.flow{display:flex;align-items:center;gap:12px;margin-top:24px;flex-wrap:wrap;justify-content:center;}
+.flow-box{background:#ffffff0d;border:1px solid #ffffff20;border-radius:10px;padding:14px 18px;font-size:14px;text-align:center;}
+.arrow{font-size:22px;color:#666;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:24px;width:100%;max-width:800px;text-align:left;}
+.col-box{background:#ffffff08;border:1px solid #ffffff15;border-radius:14px;padding:22px;}
+.col-box h3{font-size:16px;margin-bottom:10px;color:#5b8bff;}
+.col-box p,.col-box ul{font-size:13px;color:#ccc;line-height:1.8;}
+.col-box ul{list-style:none;padding:0;}
+.col-box ul li::before{content:"-> ";color:#ff4655;}
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="slides" id="slides">
 
-    <div class="progress" id="progress"></div>div>
-    <div class="slides" id="slides">
+<div class="slide slide-title active">
+  <div class="badge badge-red">開発講義 Vol.1</div>
+  <h1>playce を<br><span class="accent">ゼロから作った</span><br>全工程を解説</h1>
+  <p class="sub">VALORANTマルチ募集サイトはどうやって作られたのか<br>プログラミング未経験でも「なるほど！」と思える講義</p>
+  <div style="margin-top:32px;font-size:13px;color:#555;">キーボードの矢印キー または ボタンでスライドを進める</div>
+</div>
 
-      <!-- ===== SLIDE 1: タイトル ===== -->
-      <div class="slide slide-title active">
-          <div class="badge badge-red">📚 開発講義 Vol.1</div>div>
-          <h1>playce を<br><span class="accent">ゼロから作った</span>span><br>全工程を解説</h1>
-        <p class="sub">VALORANTマルチ募集サイトはどうやって作られたのか<br>プログラミング未経験でも「あー！なるほど！」と思える講義</p>p>
-        <div style="margin-top:32px;font-size:13px;color:#555;">← / → キー または ボタンでスライドを進める</div>div>
-      </div>div>
-    
-    <!-- ===== SLIDE 2: 目次 ===== -->
-    <div class="slide slide-blue">
-      <div class="badge badge-blue">CONTENTS</div>div>
-      <h2>今日学ぶこと</h2>
-      <div class="cards">
-          <div class="card">
-                <div class="card-icon">🏗️</div>div>
-                <h3>① 設計</h3>
-                <p>Webサイトの骨格ってどうできてるの？</p>
-          </div>div>
-          <div class="card">
-                <div class="card-icon">🗄️</div>div>
-                <h3>② データベース</h3>
-                <p>情報をどこに保存してるの？</p>
-          </div>div>
-          <div class="card">
-                <div class="card-icon">🎨</div>div>
-                <h3>③ デザイン</h3>
-                <p>ゲーミングUIってどうやって作るの？</p>
-          </div>div>
-          <div class="card">
-                <div class="card-icon">⚙️</div>div>
-                <h3>④ 機能</h3>
-                <p>ボタンを押すと何が起きるの？</p>
-          </div>div>
-          <div class="card">
-                <div class="card-icon">🚀</div>div>
-                <h3>⑤ 公開</h3>
-                <p>どうやってネットに載せるの？</p>
-          </div>div>
-      </div>div>
-    </div>div>
-    
-    <!-- ===== SLIDE 3: Webサイトの3要素 ===== -->
-    <div class="slide slide-dark">
-      <div class="badge badge-blue">STEP 1 — 基礎知識</div>div>
-      <h2>Webサイトは<span class="accent2">3つの材料</span>span>でできてる</h2>
-      <div class="cards">
-          <div class="card">
-                <div class="card-icon">🧱</div>div>
-                <h3>HTML</h3>
-                <p><strong style="color:#fff">骨格・構造</strong>strong><br><br>「ここにタイトル」「ここにボタン」という<b>部品の配置</b>を決める。<br>家で言えば「間取り図」。</p>
-          </div>div>
-          <div class="card">
-                <div class="card-icon">🎨</div>div>
-                <h3>CSS</h3>
-                <p><strong style="color:#fff">見た目・デザイン</strong>strong><br><br>色・フォント・サイズ・アニメーションを決める。<br>家で言えば「内装・壁紙」。</p>
-          </div>div>
-          <div class="card">
-                <div class="card-icon">⚡</div>div>
-                <h3>JavaScript</h3>
-                <p><strong style="color:#fff">動き・機能</strong>strong><br><br>「ボタンを押したら〇〇する」という<b>動作</b>を書く。<br>家で言えば「電気・ドア」。</p>
-          </div>div>
-      </div>div>
-      <div class="highlight-box" style="margin-top:24px;">
-          <p style="font-size:14px;">💡 playceは <strong style="color:#ff4655">この3つすべてが index.html ひとつのファイル</strong>strong>に入っています！</p>
-      </div>div>
-    </div>div>
-    
-    <!-- ===== SLIDE 4: 初期実装 ===== -->
-    <div class="slide slide-purple">
-      <div class="badge badge-purple">STEP 2 — Apr 19 最初のコミット</div>div>
-      <h2>まず<span class="accent">「動く最小版」</span>span>を作った</h2>
-      <p class="sub" style="margin-bottom:4px;">コミットメッセージ：<em style="color:#c97dff">「初期実装: Supabase接続・マルチ募集UI追加」</em>em></p>
-      <div class="flow" style="margin-top:20px;">
-          <div class="flow-box">👤 ユーザーが<br>フォーム入力</div>div>
-          <div class="arrow">→</div>div>
-          <div class="flow-box">💾 Supabaseに<br>データを送信</div>div>
-          <div class="arrow">→</div>div>
-          <div class="flow-box">📋 一覧に<br>表示される</div>div>
-      </div>div>
-      <div class="two-col" style="margin-top:24px;">
-          <div class="col-box">
-                <h3>🗄️ Supabaseって何？</h3>
-                <p>データを保存する「クラウド上の倉庫」。<br><br>MySQLとかPostgreSQLというデータベースを、<b>コード不要でサクッと使える</b>b>サービス。<br><br>Google スプレッドシートのめちゃ高機能版、というイメージ。</p>
-          </div>div>
-          <div class="col-box">
-                <h3>📡 なぜ必要？</h3>
-                <p>HTMLファイルだけだとデータを保存できない。<br><br>誰かが「募集を投稿」しても、ページを閉じたら消えてしまう。<br><br>Supabaseに繋ぐことで<b>みんなの投稿が永続保存</b>される。</p>
-          </div>div>
-      </div>div>
-    </div>div>
-    
-    <!-- ===== SLIDE 5: デザインリニューアル ===== -->
-    <div class="slide slide-blue">
-      <div class="badge badge-blue">STEP 3 — Apr 20 早朝</div>div>
-      <h2>デザインを<span class="accent">ゲーミング風</span>span>に全面リニューアル</h2>
-      <p class="sub">コミット：<em style="color:#5b8bff">「デザイン全面リニューアル: ゲーミングUI・VALORANTテーマ」</em>em></p>
-      <div class="compare">
-          <div class="compare-box before">
-                <h3>❌ Before（リニューアル前）</h3>
-                <ul>
-                          <li>普通の白背景</li>
-                        <li>シンプルなフォーム</li>
-                        <li>地味で「サイトっぽくない」</li>
-                        <li>VALORANTの雰囲気ゼロ</li>
-                </ul>
-          </div>div>
-          <div class="compare-box after">
-                <h3>✅ After（リニューアル後）</h3>
-                <ul>
-                        <li>暗い背景 + 赤・青の光彩</li>
-                        <li>ゲーミングフォント・グラデーション</li>
-                        <li>VALORANTカラー（#ff4655 など）</li>
-                        <li>モーダル（ポップアップ）UIに変更</li>
-                </ul>
-          </div>div>
-      </div>div>
-      <div class="highlight-box" style="margin-top:20px;">
-          <p style="font-size:14px;">💡 <strong>#ff4655</strong> ← これがVALORANTの赤色コードです。<br>CSSでは色を「#」から始まる6桁の数字で指定します。</p>
-      </div>div>
-    </div>div>
-    
-    <!-- ===== SLIDE 6: 参加機能 ===== -->
-    <div class="slide slide-green">
-      <div class="badge badge-green">STEP 4 — 参加機能の追加</div>div>
-      <h2>「参加する」ボタンが<span class="accent3">できた理由</span>span></h2>
-      <p class="sub">コミット：<em style="color:#4dffa0">「feat: 募集への参加機能を追加 (join_requests)」</em>em></p>
-      <div class="two-col">
-          <div class="col-box">
-                <h3>📋 join_requestsとは？</h3>
-                <p>Supabaseの中に作った「テーブル（表）」の名前。<br><br>
-                      誰かが「参加する」を押したとき、<br>
-                      <b>誰が・どの募集に・いつ参加したか</b>を<br>この表に記録する仕組み。<br><br>
-                      Excelで言えば1枚のシート。</p>
-          </div>div>
-          <div class="col-box">
-                <h3>⚡ ボタンを押したとき何が起きる？</h3>
-                <ul>
-                        <li>JavaScriptが動く</li>
-                        <li>Supabaseに「参加データ」を送信</li>
-                        <li>参加者数のカウントが増える</li>
-                        <li>Discord IDを表示する</li>
-                </ul>
-          </div>div>
-      </div>div>
-      <div class="flow" style="margin-top:20px;">
-          <div class="flow-box">🖱️ 「参加」<br>ボタンクリック</div>div>
-          <div class="arrow">→</div>div>
-          <div class="flow-box">⚡ JavaScript<br>が起動</div>div>
-          <div class="arrow">→</div>div>
-          <div class="flow-box">📡 Supabaseへ<br>POST送信</div>div>
-          <div class="arrow">→</div>div>
-          <div class="flow-box">✅ 画面を<br>更新</div>div>
-      </div>div>
-    </div>div>
-    
-    <!-- ===== SLIDE 7: バグ修正 ===== -->
-    <div class="slide slide-dark">
-      <div class="badge badge-red">STEP 5 — バグ修正 3連発</div>div>
-      <h2>バグと戦った<span class="accent">3つの修正</span>span></h2>
-      <ul class="steps">
-          <li>
-                  <div class="step-num">1</div>div>
-                  <div class="step-text">
-                            <strong>タグ表示・文字化けバグを完全修正</strong>strong>
-                            <span>日本語が「????」のような記号に変わる問題。文字コード（UTF-8）の設定ミスが原因でした。</span>
-                  </div>div>
-          </li>
-          <li>
-            <div class="step-num">2</div>div>
-            <div class="step-text">
-                    <strong>openJ構文エラーを修正</strong>strong>
-                    <span>JavaScript の書き方ミス（構文エラー）。カッコや引用符の閉じ忘れなどで動かなくなる。コードの「誤字」みたいなもの。</span>
-            </div>div>
-          </li>
-          <li>
-                  <div class="step-num">3</div>div>
-                  <div class="step-text">
-                            <strong>SupabaseのAPIキーを新形式に更新</strong>
-                          <span>APIキー＝「Supabaseへの入館証」。古い形式から新しい「Publishable key」形式に変更。セキュリティ向上のためSupabase側が仕様変更した。</span>
-                  </div>div>
-          </li>
-      </ul>
-    </div>div>
-    
-    <!-- ===== SLIDE 8: UI強化 ===== -->
-    <div class="slide slide-purple">
-      <div class="badge badge-purple">STEP 6 — UI全面改善</div>div>
-      <h2>ユーザー体験を<span class="accent">激しく改善</span>した</h2>
-      <p class="sub">コミット：<em>「feat: ヒーローエリア・アバター・CTA・点滅タイマー追加、UI全面改善」</em></p>
-      <div class="cards" style="margin-top:20px;">
-          <div class="card">
-                <div class="card-icon">🦸</div>div>
-                <h3>ヒーローエリア</h3>
-                <p>ページ最上部の大きなビジュアルエリア。「このサイトは何？」を一発で伝える看板。</p>
-          </div>div>
-          <div class="card">
-                <div class="card-icon">👤</div>div>
-                <h3>アバター</h3>
-                <p>ユーザーのアイコン画像。名前の頭文字などをアイコン風に表示。</p>
-          </div>div>
-          <div class="card">
-                <div class="card-icon">📢</div>div>
-                <h3>CTA</h3>
-                <p>Call To Action＝「行動を促すボタン」。「今すぐ募集する！」などの目立つボタンのこと。</p>
-          </div>div>
-          <div class="card">
-                <div class="card-icon">⏱️</div>div>
-                <h3>点滅タイマー</h3>
-                <p>残り時間が少なくなると赤く点滅する。「急いで！」という緊張感を演出するCSS。</p>
-          </div>div>
-      </div>div>
-    </div>div>
-    
-    <!-- ===== SLIDE 9: フィルター機能 ===== -->
-    <div class="slide slide-blue">
-      <div class="badge badge-blue">STEP 7 — フィルター &amp; タグ機能</div>div>
-      <h2>絞り込み検索と<span class="accent2">雰囲気タグ</span>を追加</h2>
-      <p class="sub">コミット：<em>「feat: 雰囲気タグ・フィルター・残り時間・Discord IDコピー機能追加」</em></p>
-      <div class="two-col" style="margin-top:20px;">
-          <div class="col-box">
-                <h3>🏷️ 雰囲気タグとは？</h3>
-                <p>募集に「わいわい」「ガチ」「初心者OK」など<b>ラベル</b>を付ける機能。<br><br>HTMLの data-* 属性とCSSクラスを使って色分けされたバッジとして表示。</p>
-                <div style="margin-top:12px;">
-                        <span class="tag-demo" style="background:#ff465520;border:1px solid #ff4655;color:#ff8080;">ガチ</span>
-                        <span class="tag-demo" style="background:#5b8bff20;border:1px solid #5b8bff;color:#8bb0ff;">わいわい</span>
-                        <span class="tag-demo" style="background:#4dffa020;border:1px solid #4dffa0;color:#80ffc0;">初心者OK</span>
-                </div>div>
-          </div>div>
-          <div class="col-box">
-                <h3>🔍 フィルター機能</h3>
-                <p>「ガチだけ表示したい」など絞り込む機能。<br><br>JavaScript が各カードの属性を読んで、<b>条件に合わないカードを非表示</b>b>にする仕組み。<br><br>position:sticky でフィルターバーが画面上部に固定される。</p>
-          </div>div>
-      </div>div>
-      <div class="highlight-box" style="margin-top:16px;">
-          <p style="font-size:13px;">📋 Discord IDコピー機能 → ボタンを押すと <code style="color:#ff4655">navigator.clipboard.writeText()</code>code> というJSの命令でコピーされます。</p>
-      </div>div>
-    </div>div>
-    
-    <!-- ===== SLIDE 10: モックデータ ===== -->
-    <div class="slide slide-dark">
-      <div class="badge badge-green">STEP 8 — モックデータ</div>div>
-      <h2>テスト用の<span class="accent3">ダミーデータ10件</span>を追加</h2>
-      <p class="sub">コミット：<em>「feat: モックデータ10件・フィルター sticky・ヒーローパルス追加」</em></p>
-      <div class="two-col" style="margin-top:20px;">
-          <div class="col-box">
-                <h3>🧪 モックデータとは？</h3>
-                <p>「モック（mock）＝偽物・テスト用」という意味。<br><br>
-                      実際にSupabaseからデータを取ってくる前に、<b>見た目確認用の仮データ</b>をコードに直書きしたもの。<br><br>
-                「誰も使ってないのにサイトが空っぽに見える」問題を解決。</p>
-          </div>div>
-          <div class="col-box">
-                <h3>✨ ヒーローパルスとは？</h3>
-                <p>CSSアニメーションの一種。<br><br>
-                要素が「ふわっ…ふわっ…」と光って点滅するエフェクト。<br><br>
-                @keyframes という命令で作り、<br>「注目させたい箇所」に付ける演出。</p>
-          </div>div>
-      </div>div>
-      <div class="code-block">
-          <span class="cm">/* ヒーローパルス CSS の仕組み */</span><br>
-          <span class="ck">@keyframes</span> <span class="cn">pulse</span> {<br>
-          &nbsp;&nbsp;<span class="cv">0%</span>   { box-shadow: <span class="cv">0 0 0px #ff4655</span>; }<br>
-          &nbsp;&nbsp;<span class="cv">50%</span>  { box-shadow: <span class="cv">0 0 30px #ff4655</span>; }<br>
-          &nbsp;&nbsp;<span class="cv">100%</span> { box-shadow: <span class="cv">0 0 0px #ff4655</span>; }<br>
-          }
-      </div>div>
-    </div>div>
-    
-    <!-- ===== SLIDE 11: 最終仕上げ ===== -->
-    <div class="slide slide-purple">
-      <div class="badge badge-purple">STEP 9 — 最終仕上げ</div>div>
-      <h2>細かいUX改善で<span class="accent">完成度UP</span></h2>
-      <p class="sub">最後の2コミットで細部を磨き上げ</p>
-      <ul class="steps" style="margin-top:20px;">
-          <li>
-                  <div class="step-num">1</div>div>
-                  <div class="step-text">
-                            <strong>残り時間の改行を修正（white-space: nowrap）</strong>
-                            <span>「残り 2時<br>間30分」のように途中で改行されてしまう問題。<br>CSSの white-space:nowrap を追加すると「改行させない」指定ができる。</span>
-                  </div>div>
-          </li>
-            <li>
-                    <div class="step-num">2</div>div>
-                    <div class="step-text">
-                              <strong>雰囲気タグを名前直下に移動・NEWバッジ・時間バッジ・キャッチコピー変更</strong>
-                              <span>UIの「情報の順番」を整理。新着にはNEWバッジを表示。キャッチコピーを変更してサイトの雰囲気をより強化。</span>
-                    </div>div>
-            </li>
-            <li>
-                    <div class="step-num">3</div>div>
-                    <div class="step-text">
-                              <strong>Update index.html（最終調整）</strong>
-                              <span>細かいレイアウトやテキストの微調整。これが現在公開されている最新版。</span>
-                    </div>div>
-            </li>
-      </ul>
-    </div>div>
+<div class="slide slide-blue">
+  <div class="badge badge-blue">CONTENTS</div>
+  <h2>今日学ぶこと</h2>
+  <div class="cards">
+    <div class="card"><div class="card-icon">🏗️</div><h3>① 設計</h3><p>Webサイトの骨格ってどうできてるの？</p></div>
+    <div class="card"><div class="card-icon">🗄️</div><h3>② データベース</h3><p>情報をどこに保存してるの？</p></div>
+    <div class="card"><div class="card-icon">🎨</div><h3>③ デザイン</h3><p>ゲーミングUIってどうやって作るの？</p></div>
+    <div class="card"><div class="card-icon">⚙️</div><h3>④ 機能</h3><p>ボタンを押すと何が起きるの？</p></div>
+    <div class="card"><div class="card-icon">🚀</div><h3>⑤ 公開</h3><p>どうやってネットに載せるの？</p></div>
+  </div>
+</div>
 
-      <!-- ===== SLIDE 12: GitHub Pages ===== -->
-      <div class="slide slide-blue">
-          <div class="badge badge-blue">BONUS — どうやって公開してるの？</div>div>
-          <h2>GitHubが<span class="accent2">自動でデプロイ</span>してくれる</h2>
-          <div class="flow">
-                <div class="flow-box">👨‍💻 コードを<br>編集・保存</div>div>
-                <div class="arrow">→</div>div>
-                <div class="flow-box">📤 GitHub に<br>コミット（保存）</div>div>
-                <div class="arrow">→</div>div>
-                <div class="flow-box">🤖 GitHub Actions<br>が自動起動</div>div>
-                <div class="arrow">→</div>div>
-                <div class="flow-box">🌐 GitHub Pages で<br>URLが更新される</div>div>
-          </div>div>
-          <div class="two-col" style="margin-top:24px;">
-                <div class="col-box">
-                        <h3>📦 コミットとは？</h3>
-                        <p>変更を<b>「確定・保存」</b>すること。<br>ゲームのセーブポイントみたいなもの。<br><br>
-                              いつ・どんな変更をしたか履歴が残り、<br>いつでも以前の状態に戻せる。</p>
-                </div>div>
-              <div class="col-box">
-                    <h3>🤖 GitHub Actionsとは？</h3>
-                    <p><b>コミットを検知して自動で作業をこなすロボット。</b><br><br>
-                    「コミットが来たら自動でサイトを公開する」という<br>ルールを設定しておくと、ワンクリックで反映される。</p>
-              </div>div>
-          </div>div>
-      </div>div>
-    
-    <!-- ===== SLIDE 13: まとめ ===== -->
-    <div class="slide slide-title">
-      <div class="badge badge-red">🎓 まとめ</div>div>
-      <h2>全行程 おさらい</h2>
-      <div class="cards" style="margin-top:20px;">
-          <div class="card">
-                <div class="card-icon">📅</div>div>
-                <h3>Apr 19</h3>
-                <p>土台を作る。Supabase接続・基本UI</p>
-          </div>div>
-          <div class="card">
-                <div class="card-icon">🎨</div>div>
-                <h3>デザイン刷新</h3>
-                <p>ゲーミングUI・VALORANTテーマに変更</p>
-          </div>div>
-          <div class="card">
-                <div class="card-icon">⚙️</div>div>
-                <h3>機能追加</h3>
-                <p>参加機能・タグ・フィルター・タイマー</p>
-          </div>div>
-          <div class="card">
-                <div class="card-icon">🐛</div>div>
-                <h3>バグ修正</h3>
-                <p>文字化け・構文エラー・APIキー更新</p>
-          </div>div>
-          <div class="card">
-                <div class="card-icon">✨</div>div>
-                <h3>仕上げ</h3>
-                <p>NEWバッジ・nowrap・モックデータ</p>
-          </div>div>
-      </div>div>
-      <div class="highlight-box" style="margin-top:20px;">
-          <p style="font-size:15px;">🎉 HTML 1ファイル + Supabase（外部DB）= <strong style="color:#ff4655">本格的なWebアプリ</strong>strong> のできあがり！</p>
-      </div>div>
-    </div>div>
-    
-    </div>div><!-- /slides -->
-  
-  <div class="nav">
-    <button onclick="prev()">← 前へ</button>button>
-    <button onclick="next()">次へ →</button>button>
-  </div>div>
-  <div class="page-num" id="pageNum"></div>div>
-  
-  <script>
-    let cur = 0;
-    const slides = document.querySelectorAll('.slide');
-    const total = slides.length;
-    function show(n){
-        slides[cur].classList.remove('active');
-        cur = (n + total) % total;
-        slides[cur].classList.add('active');
-        document.getElementById('progress').style.width = ((cur+1)/total*100)+'%';
-        document.getElementById('pageNum').textContent = (cur+1) + ' / ' + total;
-    }
-    function next(){show(cur+1);}
-    function prev(){show(cur-1);}
-    document.addEventListener('keydown',e=>{
-        if(e.key==='ArrowRight'||e.key==='ArrowDown') next();
-        if(e.key==='ArrowLeft'||e.key==='ArrowUp') prev();
-    });
-    show(0);
-  </script>
-  </body>
-</html>html>
-  </script></b></p></p>
-            </li>
-          </li></b></p></p></b></em></p></p></em></strong>
-          </li></span></span>
-          </li></li></p></strong></li></li>
-                </ul></b></p></p></b></b></p></p></h2></h1>
-  </body>
-  </style></title>
-  </head>
+<div class="slide slide-dark">
+  <div class="badge badge-blue">STEP 1 — 基礎知識</div>
+  <h2>Webサイトは<span class="accent2">3つの材料</span>でできてる</h2>
+  <div class="cards">
+    <div class="card"><div class="card-icon">🧱</div><h3>HTML</h3><p><strong style="color:#fff">骨格・構造</strong><br><br>「ここにタイトル」「ここにボタン」という部品の配置を決める。家で言えば「間取り図」。</p></div>
+    <div class="card"><div class="card-icon">🎨</div><h3>CSS</h3><p><strong style="color:#fff">見た目・デザイン</strong><br><br>色・フォント・サイズ・アニメーションを決める。家で言えば「内装・壁紙」。</p></div>
+    <div class="card"><div class="card-icon">⚡</div><h3>JavaScript</h3><p><strong style="color:#fff">動き・機能</strong><br><br>「ボタンを押したら〇〇する」という動作を書く。家で言えば「電気・ドア」。</p></div>
+  </div>
+  <div class="highlight-box" style="margin-top:24px;"><p style="font-size:14px;">💡 playceはこの3つすべてが index.html ひとつのファイルに入っています！</p></div>
+</div>
+
+<div class="slide slide-purple">
+  <div class="badge badge-purple">STEP 2 — Apr 19 最初のコミット</div>
+  <h2>まず<span class="accent">「動く最小版」</span>を作った</h2>
+  <p class="sub" style="margin-bottom:4px;">コミット：「初期実装: Supabase接続・マルチ募集UI追加」</p>
+  <div class="flow" style="margin-top:20px;">
+    <div class="flow-box">👤 ユーザーがフォーム入力</div>
+    <div class="arrow">→</div>
+    <div class="flow-box">💾 Supabaseにデータを送信</div>
+    <div class="arrow">→</div>
+    <div class="flow-box">📋 一覧に表示される</div>
+  </div>
+  <div class="two-col" style="margin-top:24px;">
+    <div class="col-box"><h3>🗄️ Supabaseって何？</h3><p>データを保存する「クラウド上の倉庫」。PostgreSQLというデータベースをコード不要でサクッと使えるサービス。Googleスプレッドシートのめちゃ高機能版。</p></div>
+    <div class="col-box"><h3>📡 なぜ必要？</h3><p>HTMLファイルだけだとデータを保存できない。誰かが「募集を投稿」しても、ページを閉じたら消えてしまう。Supabaseに繋ぐことでみんなの投稿が永続保存される。</p></div>
+  </div>
+</div>
+
+<div class="slide slide-blue">
+  <div class="badge badge-blue">STEP 3 — Apr 20 早朝</div>
+  <h2>デザインを<span class="accent">ゲーミング風</span>に全面リニューアル</h2>
+  <p class="sub">コミット：「デザイン全面リニューアル: ゲーミングUI・VALORANTテーマ」</p>
+  <div class="compare">
+    <div class="compare-box before">
+      <h3>Before（リニューアル前）</h3>
+      <ul><li>普通の白背景</li><li>シンプルなフォーム</li><li>地味で「サイトっぽくない」</li><li>VALORANTの雰囲気ゼロ</li></ul>
+    </div>
+    <div class="compare-box after">
+      <h3>After（リニューアル後）</h3>
+      <ul><li>暗い背景 + 赤・青の光彩</li><li>ゲーミングフォント・グラデーション</li><li>VALORANTカラー (#ff4655)</li><li>モーダル（ポップアップ）UIに変更</li></ul>
+    </div>
+  </div>
+  <div class="highlight-box" style="margin-top:20px;"><p style="font-size:14px;">💡 #ff4655 ← これがVALORANTの赤色コードです。CSSでは色を「#」から始まる6桁の数字で指定します。</p></div>
+</div>
+
+<div class="slide slide-green">
+  <div class="badge badge-green">STEP 4 — 参加機能の追加</div>
+  <h2>「参加する」ボタンが<span class="accent3">できた理由</span></h2>
+  <p class="sub">コミット：「feat: 募集への参加機能を追加 (join_requests)」</p>
+  <div class="two-col">
+    <div class="col-box"><h3>📋 join_requestsとは？</h3><p>Supabaseの中に作った「テーブル（表）」の名前。誰かが「参加する」を押したとき、誰が・どの募集に・いつ参加したかをこの表に記録する仕組み。Excelで言えば1枚のシート。</p></div>
+    <div class="col-box"><h3>⚡ ボタンを押したとき何が起きる？</h3><ul><li>JavaScriptが動く</li><li>Supabaseに「参加データ」を送信</li><li>参加者数のカウントが増える</li><li>Discord IDを表示する</li></ul></div>
+  </div>
+  <div class="flow" style="margin-top:20px;">
+    <div class="flow-box">🖱️ 参加ボタンクリック</div>
+    <div class="arrow">→</div>
+    <div class="flow-box">⚡ JavaScript起動</div>
+    <div class="arrow">→</div>
+    <div class="flow-box">📡 Supabaseへ送信</div>
+    <div class="arrow">→</div>
+    <div class="flow-box">✅ 画面を更新</div>
+  </div>
+</div>
+
+<div class="slide slide-dark">
+  <div class="badge badge-red">STEP 5 — バグ修正 3連発</div>
+  <h2>バグと戦った<span class="accent">3つの修正</span></h2>
+  <ul class="steps">
+    <li><div class="step-num">1</div><div class="step-text"><strong>タグ表示・文字化けバグを完全修正</strong><span>日本語が「????」のような記号に変わる問題。文字コード（UTF-8）の設定ミスが原因でした。</span></div></li>
+    <li><div class="step-num">2</div><div class="step-text"><strong>openJ構文エラーを修正</strong><span>JavaScript の書き方ミス（構文エラー）。カッコや引用符の閉じ忘れなどで動かなくなる。コードの「誤字」みたいなもの。</span></div></li>
+    <li><div class="step-num">3</div><div class="step-text"><strong>SupabaseのAPIキーを新形式に更新</strong><span>APIキー＝「Supabaseへの入館証」。古い形式から新しい「Publishable key」形式に変更。Supabase側がセキュリティ向上のため仕様変更した。</span></div></li>
+  </ul>
+</div>
+
+<div class="slide slide-purple">
+  <div class="badge badge-purple">STEP 6 — UI全面改善</div>
+  <h2>ユーザー体験を<span class="accent">激しく改善</span>した</h2>
+  <p class="sub">コミット：「feat: ヒーローエリア・アバター・CTA・点滅タイマー追加、UI全面改善」</p>
+  <div class="cards" style="margin-top:20px;">
+    <div class="card"><div class="card-icon">🦸</div><h3>ヒーローエリア</h3><p>ページ最上部の大きなビジュアルエリア。「このサイトは何？」を一発で伝える看板。</p></div>
+    <div class="card"><div class="card-icon">👤</div><h3>アバター</h3><p>ユーザーのアイコン画像。名前の頭文字などをアイコン風に表示。</p></div>
+    <div class="card"><div class="card-icon">📢</div><h3>CTA</h3><p>Call To Action＝「行動を促すボタン」。「今すぐ募集する！」などの目立つボタンのこと。</p></div>
+    <div class="card"><div class="card-icon">⏱️</div><h3>点滅タイマー</h3><p>残り時間が少なくなると赤く点滅する。「急いで！」という緊張感を演出するCSS。</p></div>
+  </div>
+</div>
+
+<div class="slide slide-blue">
+  <div class="badge badge-blue">STEP 7 — フィルター機能</div>
+  <h2>絞り込み検索と<span class="accent2">雰囲気タグ</span>を追加</h2>
+  <p class="sub">コミット：「feat: 雰囲気タグ・フィルター・残り時間・Discord IDコピー機能追加」</p>
+  <div class="two-col" style="margin-top:20px;">
+    <div class="col-box">
+      <h3>🏷️ 雰囲気タグとは？</h3>
+      <p>募集に「わいわい」「ガチ」「初心者OK」などラベルを付ける機能。HTMLのdata属性とCSSクラスを使って色分けされたバッジとして表示。</p>
+      <div style="margin-top:12px;">
+        <span class="tag-demo" style="background:#ff465520;border:1px solid #ff4655;color:#ff8080;">ガチ</span>
+        <span class="tag-demo" style="background:#5b8bff20;border:1px solid #5b8bff;color:#8bb0ff;">わいわい</span>
+        <span class="tag-demo" style="background:#4dffa020;border:1px solid #4dffa0;color:#80ffc0;">初心者OK</span>
+      </div>
+    </div>
+    <div class="col-box"><h3>🔍 フィルター機能</h3><p>「ガチだけ表示したい」など絞り込む機能。JavaScriptが各カードの属性を読んで、条件に合わないカードを非表示にする仕組み。position:stickyでフィルターバーが画面上部に固定される。</p></div>
+  </div>
+  <div class="highlight-box" style="margin-top:16px;"><p style="font-size:13px;">Discord IDコピー機能 → ボタンを押すと navigator.clipboard.writeText() というJSの命令でコピーされます。</p></div>
+</div>
+
+<div class="slide slide-dark">
+  <div class="badge badge-green">STEP 8 — モックデータ</div>
+  <h2>テスト用の<span class="accent3">ダミーデータ10件</span>を追加</h2>
+  <p class="sub">コミット：「feat: モックデータ10件・フィルター sticky・ヒーローパルス追加」</p>
+  <div class="two-col" style="margin-top:20px;">
+    <div class="col-box"><h3>🧪 モックデータとは？</h3><p>「モック（mock）＝偽物・テスト用」という意味。実際にSupabaseからデータを取ってくる前に、見た目確認用の仮データをコードに直書きしたもの。「誰も使ってないのにサイトが空っぽに見える」問題を解決。</p></div>
+    <div class="col-box">
+      <h3>✨ ヒーローパルスとは？</h3>
+      <p>CSSアニメーションの一種。要素が「ふわっ…ふわっ…」と光って点滅するエフェクト。@keyframes という命令で作り、「注目させたい箇所」に付ける演出。</p>
+      <div class="code-block" style="margin-top:12px;font-size:12px;">
+        /* ヒーローパルス */<br>
+        @keyframes pulse {<br>
+        &nbsp;&nbsp;0%  { box-shadow: 0 0 0px #ff4655; }<br>
+        &nbsp;&nbsp;50% { box-shadow: 0 0 30px #ff4655; }<br>
+        &nbsp;&nbsp;100%{ box-shadow: 0 0 0px #ff4655; }<br>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="slide slide-purple">
+  <div class="badge badge-purple">STEP 9 — 最終仕上げ</div>
+  <h2>細かいUX改善で<span class="accent">完成度UP</span></h2>
+  <p class="sub">最後の2コミットで細部を磨き上げ</p>
+  <ul class="steps" style="margin-top:20px;">
+    <li><div class="step-num">1</div><div class="step-text"><strong>残り時間の改行を修正（white-space: nowrap）</strong><span>「残り 2時間30分」が途中で改行されてしまう問題。CSSのwhite-space:nowrapを追加すると「改行させない」指定ができる。</span></div></li>
+    <li><div class="step-num">2</div><div class="step-text"><strong>雰囲気タグを名前直下に移動・NEWバッジ・時間バッジ追加</strong><span>UIの「情報の順番」を整理。新着にはNEWバッジを表示。キャッチコピーを変更してサイトの雰囲気をより強化。</span></div></li>
+    <li><div class="step-num">3</div><div class="step-text"><strong>Update index.html（最終調整）</strong><span>細かいレイアウトやテキストの微調整。これが現在公開されている最新版。</span></div></li>
+  </ul>
+</div>
+
+<div class="slide slide-blue">
+  <div class="badge badge-blue">BONUS — どうやって公開してるの？</div>
+  <h2>GitHubが<span class="accent2">自動でデプロイ</span>してくれる</h2>
+  <div class="flow">
+    <div class="flow-box">👨‍💻 コードを編集・保存</div>
+    <div class="arrow">→</div>
+    <div class="flow-box">📤 GitHubにコミット（保存）</div>
+    <div class="arrow">→</div>
+    <div class="flow-box">🤖 GitHub Actionsが自動起動</div>
+    <div class="arrow">→</div>
+    <div class="flow-box">🌐 GitHub PagesでURLが更新</div>
+  </div>
+  <div class="two-col" style="margin-top:24px;">
+    <div class="col-box"><h3>📦 コミットとは？</h3><p>変更を「確定・保存」すること。ゲームのセーブポイントみたいなもの。いつ・どんな変更をしたか履歴が残り、いつでも以前の状態に戻せる。</p></div>
+    <div class="col-box"><h3>🤖 GitHub Actionsとは？</h3><p>コミットを検知して自動で作業をこなすロボット。「コミットが来たら自動でサイトを公開する」というルールを設定しておくと、ワンクリックで反映される。</p></div>
+  </div>
+</div>
+
+<div class="slide slide-title">
+  <div class="badge badge-red">🎓 まとめ</div>
+  <h2>全行程 おさらい</h2>
+  <div class="cards" style="margin-top:20px;">
+    <div class="card"><div class="card-icon">📅</div><h3>Apr 19</h3><p>土台を作る。Supabase接続・基本UI</p></div>
+    <div class="card"><div class="card-icon">🎨</div><h3>デザイン刷新</h3><p>ゲーミングUI・VALORANTテーマに変更</p></div>
+    <div class="card"><div class="card-icon">⚙️</div><h3>機能追加</h3><p>参加機能・タグ・フィルター・タイマー</p></div>
+    <div class="card"><div class="card-icon">🐛</div><h3>バグ修正</h3><p>文字化け・構文エラー・APIキー更新</p></div>
+    <div class="card"><div class="card-icon">✨</div><h3>仕上げ</h3><p>NEWバッジ・nowrap・モックデータ</p></div>
+  </div>
+  <div class="highlight-box" style="margin-top:20px;"><p style="font-size:15px;">🎉 HTML 1ファイル + Supabase（外部DB）= 本格的なWebアプリのできあがり！</p></div>
+</div>
+
+</div>
+
+<div class="nav">
+  <button onclick="prev()">← 前へ</button>
+  <button onclick="next()">次へ →</button>
+</div>
+<div class="page-num" id="pageNum"></div>
+
+<script>
+let cur = 0;
+const slides = document.querySelectorAll('.slide');
+const total = slides.length;
+function show(n){
+  slides[cur].classList.remove('active');
+  cur = (n + total) % total;
+  slides[cur].classList.add('active');
+  document.getElementById('progress').style.width = ((cur+1)/total*100)+'%';
+  document.getElementById('pageNum').textContent = (cur+1) + ' / ' + total;
+}
+function next(){show(cur+1);}
+function prev(){show(cur-1);}
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key==='ArrowDown') next();
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp') prev();
+});
+show(0);
+</script>
+</body>
+</html>
